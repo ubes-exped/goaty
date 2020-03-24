@@ -33,7 +33,7 @@ export const MISSING_FNUTTS_IN_ARGS =
 export const USER_MOVED_WITH_TEXT_CHANNEL =
   ' <- seems to be a text channel. I can only move people inside voice channels!';
 
-export function buildHelpMessage(movers) {
+export function embedHelpMessage(movers) {
   return {
     embed: {
       fields: movers.map((mover) => ({ name: `!${mover.name}`, value: mover.description })),
@@ -41,20 +41,20 @@ export function buildHelpMessage(movers) {
   };
 }
 
-export const FALLBACK_HELP_MESSAGE =
-  'move - Moves @mentions to you\ncmove  Moves @mentions to a specific channel\nfmove' +
-  '- Moves users inside one channel to another channel\ngmove - Moves everyone inside a channel to you. \n\n' +
-  'For more information, use !help <command>\nSupport Server: <https://discord.gg/dTdH3gD>';
+export function textHelpMessage(movers) {
+  return (
+    movers.map((mover) => `${mover.name} - ${mover.description}`).join('\n') +
+    '\n\nFor more information, use !help <command>'
+  );
+}
+
+export function buildUniversalHelpMessage(movers) {
+  return { embed: embedHelpMessage(movers), text: textHelpMessage(movers) };
+}
+
 export function sendMessage(message, sendMessage) {
   message.channel.send(sendMessage).catch((e) => {
     logger(message, e);
-    if (
-      config.discordBotListToken !== 'x' &&
-      message.channel.permissionsFor(message.guild.me).has('SEND_MESSAGES') === true
-    ) {
-      reportMoveerError('type', message);
-      console.log(e);
-    }
   });
 }
 
@@ -63,35 +63,4 @@ export function logger(message, logMessage) {
     `${message.author.bot ? 'BOT - ' : ''}` +
       `(${message.id}) - ${message.guild.name} - (${message.channel.name}) - (${message.content}) - ${logMessage}`,
   );
-}
-
-export function reportMoveerError(type, message) {
-  const Discord = require('discord.js');
-  const hook = new Discord.WebhookClient(config.discordHookIdentifier, config.discordHookToken);
-  if (type === 'DB') {
-    hook.send(
-      'New DB error reported. Check the logs for information.\nError adding ' +
-        message +
-        ' successful move to postgreSQL\n@everyone',
-    );
-  } else if (type === 'DB-CHANGE') {
-    //TODO: remove db stuff
-    hook.send(
-      'New DB error reported. Check the logs for information.\nError changing/getting moveeradmin channel from/to POSTGRESQL\n@everyone',
-    );
-  } else if (type === 'MOVE') {
-    hook.send(
-      'New Moving error reported. Check the logs for information.\n ' + message + '\n@everyone',
-    );
-  } else {
-    hook.send(
-      'New error reported. Check the logs for information.\nCommand: ' +
-        message.content +
-        '\nInside textChannel: ' +
-        message.channel.name +
-        '\nInside server: ' +
-        message.guild.name +
-        '\n@everyone',
-    );
-  }
 }

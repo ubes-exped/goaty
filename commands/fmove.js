@@ -5,17 +5,7 @@ import config from '../config.js';
 export default {
   name: 'fmove',
   description: 'Moves one channel to another channel',
-  help: {
-    embed: {
-      color: 2387002,
-      fields: [
-        {
-          name: '!fmove',
-          value: `1. Tell users you want to move to join voice channel A\n2. Write \`!fmove A B\` where B is the voice channel you want to move them\n \nThis command requires to be sent from the text channel \'${config.masterChannel}\'.\n(If your voice channel contains spaces use\n\`!fmove "channel 1" "channel 2"\`)`,
-        },
-      ],
-    },
-  },
+  help: `1. Tell users you want to move to join voice channel A\n2. Write \`!fmove A B\` where B is the voice channel you want to move them\n \nThis command requires to be sent from the text channel \'${config.masterChannel}\'.\n(If your voice channel contains spaces use\n\`!fmove "channel 1" "channel 2"\`)`,
   async move(args, message, rabbitMqChannel) {
     try {
       let fromVoiceChannelName = args[0];

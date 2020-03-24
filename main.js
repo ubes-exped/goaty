@@ -84,6 +84,18 @@ const movers = [move, cmove, fmove, rmove, tmove];
 function getMover(moverName) {
   return movers.filter(({ name }) => moverName == name)[0];
 }
+function moverEmbedHelp(mover) {
+  return {
+    embed: {
+      color: 2387002,
+      fields: [{ name: `!${mover.name}`, value: mover.help }],
+    },
+  };
+}
+
+function moverUniversalHelp() {
+  return { embed: moverEmbedHelp(mover.help), text: mover.help };
+}
 // Listen for messages
 client.on('message', (message) => {
   if (!message.content.startsWith(config.discordPrefix)) return;
@@ -96,8 +108,11 @@ client.on('message', (message) => {
     if (message.author.bot) return;
     const gotEmbedPerms = message.channel.permissionsFor(message.guild.me).has('EMBED_LINKS');
     const mover = getMover(args[0]);
-    const helpMessage = mover ? mover.help : Message.buildHelpMessage(movers);
-    Message.sendMessage(message, gotEmbedPerms ? helpMessage : helpMessage.embed.fields[0].value);
+
+    const helpMessage = mover
+      ? moverUniversalHelp(mover)
+      : Message.buildUniversalHelpMessage(movers);
+    Message.sendMessage(message, gotEmbedPerms ? helpMessage.embed : helpMessage.text);
   } else if (getMover(command)) {
     getMover(command).move(args, message, rabbitMqChannel);
   }

@@ -5,17 +5,7 @@ import config from '../config.js';
 export default {
   name: 'rmove',
   description: 'Moves everyone with a certain role to you',
-  help: {
-    embed: {
-      color: 2387002,
-      fields: [
-        {
-          name: '!rmove',
-          value: `1. Tell users you want to move, to join any voice channel\n2. Join any other voice channel and write \`!rmove damage\` where damage is the role name you want to move\n \nThis command requires to be sent from the text channel \'${config.masterChannel}\'.\nIf your role contains spaces use\n\`!rmove "super admins"\``,
-        },
-      ],
-    },
-  },
+  help: `1. Tell users you want to move, to join any voice channel\n2. Join any other voice channel and write \`!rmove damage\` where damage is the role name you want to move\n \nThis command requires to be sent from the text channel \'${config.masterChannel}\'.\nIf your role contains spaces use\n\`!rmove "super admins"\``,
   async move(args, message, rabbitMqChannel) {
     try {
       let roleName = args[0];
