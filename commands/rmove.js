@@ -14,7 +14,7 @@ export default {
         roleName = names[0];
       }
       Helper.checkIfAuthorInsideAVoiceChannel(message, message.member.voiceChannelID);
-      await Helper.checkIfTextChannelIsMaster(message);
+      Helper.checkIfTextChannelIsMaster(message);
       Helper.checkIfMessageContainsMentions(message);
       Helper.checkArgsLength(args, 1);
       let usersToMove = Helper.getUsersByRole(message, roleName);

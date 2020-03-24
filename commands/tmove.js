@@ -15,7 +15,7 @@ export default {
         toVoiceChannelName = names[0];
         roleName = names[1];
       }
-      await Helper.checkIfTextChannelIsMaster(message);
+      Helper.checkIfTextChannelIsMaster(message);
       Helper.checkArgsLength(args, 1);
       Helper.checkIfMessageContainsMentions(message);
       const toVoiceChannel = Helper.getChannelByName(message, toVoiceChannelName);

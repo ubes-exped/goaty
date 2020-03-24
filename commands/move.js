@@ -9,22 +9,11 @@ export default {
   async move(args, message, rabbitMqChannel) {
     let messageMentions = message.mentions.users.array(); // Mentions in the message
     try {
-      const fromVoiceChannel = Helper.getChannelByName(message, 'moveer');
       Helper.checkIfAuthorInsideAVoiceChannel(message, message.member.voiceChannelID);
       Helper.checkArgsLength(args, 1);
       Helper.checkForUserMentions(message, messageMentions);
       Helper.checkIfSelfMention(message);
-      if (message.channel.name.toLowerCase() !== 'moveeradmin') {
-        const authorVoiceChannelName = Helper.getNameOfVoiceChannel(
-          message,
-          message.member.voiceChannelID,
-        );
-        Helper.checkIfVoiceChannelExist(message, fromVoiceChannel, 'Moveer');
-        const fromVoiceChannelName = Helper.getNameOfVoiceChannel(message, fromVoiceChannel.id);
-        Helper.checkIfVoiceChannelContainsMoveer(message, authorVoiceChannelName);
-        Helper.checkIfGuildHasTwoMoveerChannels(message);
-        Helper.checkIfUsersInsideVoiceChannel(message, fromVoiceChannelName, fromVoiceChannel);
-      }
+      Helper.checkIfTextChannelIsMaster(message);
       messageMentions = Helper.checkIfMentionsInsideVoiceChannel(message, messageMentions);
       messageMentions = Helper.checkIfUsersAlreadyInChannel(
         message,

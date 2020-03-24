@@ -50,7 +50,7 @@ export function checkIfUsersInsideVoiceChannel(message, fromVoiceChannelName, fr
   }
 }
 
-export async function checkIfTextChannelIsMaster(message) {
+export function checkIfTextChannelIsMaster(message) {
   if (message.channel.name.toLowerCase() !== config.masterChannel) {
     throw {
       logMessage: 'Command made outside master channel',
@@ -96,43 +96,6 @@ export function checkIfAuthorInsideAVoiceChannel(message, userVoiceRoomID) {
   }
 }
 
-export function getCategoryByName(message, categoryName) {
-  let category = message.guild.channels.find(
-    (category) => category.id === categoryName && category.type === 'category',
-  );
-  if (category === null) {
-    category = message.guild.channels.find(
-      (category) =>
-        category.name.toLowerCase() === categoryName.toLowerCase() && category.type === 'category',
-    );
-  }
-  if (category == null) {
-    throw {
-      logMessage: `Cant find category with that name: ${categoryName}`,
-      sendMessage: `No category found with the name: ${categoryName} <@${message.author.id}>`,
-    };
-  }
-  return category;
-}
-
-export function checkIfVoiceChannelContainsMoveer(message, authorVoiceChannelName) {
-  if (authorVoiceChannelName.toLowerCase().includes('moveer')) {
-    throw {
-      logMessage: 'User trying to move people into a moveer channel',
-      sendMessage: `${Message.USER_INSIDE_MOVEER_VOICE_CHANNEL} <@${message.author.id}>`,
-    };
-  }
-}
-
-export function checkIfGuildHasTwoMoveerChannels(message) {
-  if (message.guild.channels.find((channel) => channel.name.toLowerCase() === 'Moveer') !== null) {
-    throw {
-      logMessage: 'User has two channels called moveer/Moveer',
-      sendMessage: Message.SERVER_HAS_TWO_MOVEER_VOICE_CHANNELS,
-    };
-  }
-}
-
 export function checkIfMentionsInsideVoiceChannel(message, messageMentions) {
   for (let i = 0; i < messageMentions.length; i++) {
     if (message.guild.members.get(messageMentions[i].id).voiceChannelID == null) {
@@ -168,14 +131,14 @@ export async function checkForConnectPerms(message, users, voiceChannel) {
   for (let i = 0; i < users.length; i++) {
     const userVoiceChannelId = await message.guild.members.get(users[i]).voiceChannelID;
     const userVoiceChannel = await message.guild.channels.get(userVoiceChannelId);
-    if (await !userVoiceChannel.memberPermissions(message.guild.me).has('CONNECT')) {
+    if (!userVoiceChannel.memberPermissions(message.guild.me).has('CONNECT')) {
       throw {
         logMessage: 'Moveer is missing CONNECT permission',
         sendMessage: `${Message.MOVEER_MISSING_CONNECT_PERMISSION} "${userVoiceChannel.name}" <@${message.author.id}> \n \n${Message.SUPPORT_MESSAGE}`,
       };
     }
   }
-  if (await !voiceChannel.memberPermissions(message.guild.me).has('CONNECT')) {
+  if (!voiceChannel.memberPermissions(message.guild.me).has('CONNECT')) {
     throw {
       logMessage: 'Moveer is missing CONNECT permission',
       sendMessage: `${Message.MOVEER_MISSING_CONNECT_PERMISSION} "${voiceChannel.name}" <@${message.author.id}> \n \n${Message.SUPPORT_MESSAGE}`,
@@ -187,14 +150,14 @@ export async function checkForMovePerms(message, users, voiceChannel) {
   for (let i = 0; i < users.length; i++) {
     const userVoiceChannelId = await message.guild.members.get(users[i]).voiceChannelID;
     const userVoiceChannel = await message.guild.channels.get(userVoiceChannelId);
-    if (await !userVoiceChannel.memberPermissions(message.guild.me).has('MOVE_MEMBERS')) {
+    if (!userVoiceChannel.memberPermissions(message.guild.me).has('MOVE_MEMBERS')) {
       throw {
         logMessage: 'Moveer is missing Move Members permission',
         sendMessage: `${Message.MOVEER_MISSING_MOVE_PERMISSION} "${userVoiceChannel.name}" <@${message.author.id}> \n \n${Message.SUPPORT_MESSAGE}`,
       };
     }
   }
-  if (await !voiceChannel.memberPermissions(message.guild.me).has('MOVE_MEMBERS')) {
+  if (!voiceChannel.memberPermissions(message.guild.me).has('MOVE_MEMBERS')) {
     throw {
       logMessage: 'Moveer is missing Move Members permission',
       sendMessage: `${Message.MOVEER_MISSING_MOVE_PERMISSION} "${voiceChannel.name}" <@${message.author.id}> \n \n${Message.SUPPORT_MESSAGE}`,
@@ -207,43 +170,6 @@ export function checkIfChannelIsTextChannel(message, channel) {
     throw {
       logMessage: 'User tried to move with textchannels',
       sendMessage: `${channel.name}${Message.USER_MOVED_WITH_TEXT_CHANNEL} <@${message.author.id}> \n`,
-    };
-  }
-}
-
-export function checkIfCategoryHasRoomsAvailable(
-  message,
-  voiceChannelCounter,
-  voiceChannelsInCategory,
-  categoryName,
-) {
-  if (voiceChannelCounter === voiceChannelsInCategory.length) {
-    // Out of rooms to move people to.
-    throw {
-      logMessage: `Category: ${categoryName} is out of voice channels to move users to`,
-      sendMessage: `The category "${categoryName}" is out of voice channels to move users to. Please add more voice channels.`,
-    };
-  }
-}
-
-export function checkCountOfChannelsFromCategory(
-  message,
-  checkCountOfChannelsFromCategory,
-  categoryName,
-) {
-  if (checkCountOfChannelsFromCategory.length === 0) {
-    throw {
-      logMessage: `Not enought voice channels in the category: ${categoryName}`,
-      sendMessage: `No voicechannels exists or no empty voicechannels in the category: ${categoryName}`,
-    };
-  }
-}
-
-export function checkUserAmountInChannel(message, amount, expectedAmount, fromVoiceChannelName) {
-  if (amount < expectedAmount) {
-    throw {
-      logMessage: `Not enough members inside the channel ${fromVoiceChannelName} to move. Found (${amount}) expected over (${expectedAmount})`,
-      sendMessage: `Not enough members inside the channel "${fromVoiceChannelName}" to move. Found ${amount} user expected amount above ${expectedAmount}`,
     };
   }
 }
@@ -261,11 +187,6 @@ export function checkIfUserInsideBlockedChannel(message, usersToMove) {
   return usersToMove.filter((user) => !config.blockedVoiceChannels.includes(user.voiceChannelID)); // Check for null or undefined
 }
 
-// Helper functions
-export function getNameOfVoiceChannel(message, voiceChannelId) {
-  return message.guild.channels.get(voiceChannelId).name;
-}
-
 export function getChannelByName(message, findByName) {
   let voiceChannel = message.guild.channels.find((channel) => channel.id === findByName);
   if (voiceChannel === null) {
@@ -275,19 +196,6 @@ export function getChannelByName(message, findByName) {
     );
   }
   return voiceChannel;
-}
-
-function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-export function checkIfChannelTextExpectText(message) {
-  if (message.mentions.channels.first().type !== 'text') {
-    throw {
-      logMessage: 'Mention is not type text',
-      sendMessage: 'You need to mention the text channel using #nameoftextchannel',
-    };
-  }
 }
 
 export function getUsersByRole(message, roleName) {
@@ -309,35 +217,33 @@ export function getUsersByRole(message, roleName) {
 
 export async function moveUsers(message, usersToMove, toVoiceChannelId, rabbitMqChannel) {
   let usersMoved = 0;
-  usersToMove.forEach((user) => {
-    PublishToRabbitMQ(message, user, toVoiceChannelId, rabbitMqChannel);
+  for (const user of users) {
+    await publishToRabbitMQ(message, user, toVoiceChannelId, rabbitMqChannel);
     usersMoved++;
-  });
-  Message.logger(message, `Moved ${usersMoved} ${usersMoved === 1 ? 'user' : 'users'}`);
-  Message.sendMessage(
-    message,
-    `Moved ${usersMoved} ${usersMoved === 1 ? 'user' : 'users'}` +
-      ` by request of <@${message.author.id}>`,
-  );
-  if (config.postgreSQLConnection !== 'x') successfulMove(usersMoved);
+  }
+  const userCount = `${usersMoved} ${usersMoved === 1 ? 'user' : 'users'}`;
+  Message.logger(message, `Moved ${userCount}`);
+  Message.sendMessage(message, `Moved ${userCount} by request of <@${message.author.id}>`);
 }
 
-async function PublishToRabbitMQ(message, userToMove, toVoiceChannelId, rabbitMqChannel) {
+async function publishToRabbitMQ(message, userToMove, toVoiceChannelId, rabbitMqChannel) {
   const messageToRabbitMQ = {
     userId: userToMove,
     voiceChannelId: toVoiceChannelId,
     guildId: message.guild.id,
   };
   const queue = message.guild.id;
-  rabbitMqChannel.assertQueue(queue, {
+  await rabbitMqChannel.assertQueue(queue, {
     durable: true,
   });
-  rabbitMqChannel.sendToQueue(queue, Buffer.from(JSON.stringify(messageToRabbitMQ)), {
+  await rabbitMqChannel.sendToQueue(queue, Buffer.from(JSON.stringify(messageToRabbitMQ)), {
     persistent: true,
   });
   Message.logger(
     message,
-    `Sent message - User: ${messageToRabbitMQ.userId} toChannel: ${messageToRabbitMQ.voiceChannelId} in guild: ${messageToRabbitMQ.guildId}`,
+    `Sent message - User: ${messageToRabbitMQ.userId} ` +
+      `toChannel: ${messageToRabbitMQ.voiceChannelId} ` +
+      `in guild: ${messageToRabbitMQ.guildId}`,
   );
 }
 

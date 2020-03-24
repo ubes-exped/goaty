@@ -17,19 +17,6 @@ const token = config.discordToken;
 const rabbitMQConnection = process.env.rabbitMQConnection || config.rabbitMQConnection;
 let rabbitMqChannel;
 
-if (config.discordBotListToken !== 'x') {
-  // Only run if bot is public at discordbotlist.com
-  const DBL = require('dblapi.js');
-  const dbl = new DBL(config.discordBotListToken, client);
-  dbl.on('posted', () => {
-    log.info(`Posted Server count to DBL. Member of (${client.guilds.size}) servers`);
-  });
-
-  dbl.on('error', (e) => {
-    log.warn(`DBL Error!:  ${e}`);
-  });
-}
-
 client.on('ready', async () => {
   log.info('Startup successful.');
   log.info(`Running as user: ${client.user.username}`);
