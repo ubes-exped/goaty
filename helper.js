@@ -218,7 +218,7 @@ export function getUsersByRole(message, roleName) {
 
 export async function moveUsers(message, usersToMove, toVoiceChannelId, rabbitMqChannel) {
   let usersMoved = 0;
-  for (const user of users) {
+  for (const user of usersToMove) {
     await publishToRabbitMQ(message, user, toVoiceChannelId, rabbitMqChannel);
     usersMoved++;
   }
