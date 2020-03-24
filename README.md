@@ -1,68 +1,51 @@
-# Moveer
-[![Discord Bots](https://discordbots.org/api/widget/status/400724460203802624.svg?noavatar=true)](https://discordbots.org/bot/400724460203802624)
-[![BuyMeACoffee](https://img.shields.io/badge/BuyMeACoffee-Donate-ff813f.svg?logo=CoffeeScript&style=flat-square)](https://www.buymeacoffee.com/Moveer)
-[![Discord Chat](https://img.shields.io/discord/546695271242006549.svg)](https://discord.gg/dTdH3gD)
+# Goaty bot for Slack
 
+A bot that moves users from one voice channel to another, on demand.
 
-A bot that moves users from one voice channel to another. Including locked and hidden voice channels!
+## Running the bot
 
-## We currently got 7 commands that all move users in different ways.
+- `yarn` to install the JavaScript packages
+- `cp example.config.js config.js` to initialise the config file, then update as needed
+- Install `rabbitmq` from your package manager of choice, making sure that `rabbitmq-server` and `rabbitmqctl` are placed in the `$PATH`.
+- `./serve` to start the server, `^C` to quit it. This will also run a message queue locally, only accessible to itself.
 
+## Commands
 
-### **!cmove:** ↓ 
-Moves users spread across multiple voice channels to one without the need of joining a voice channel. <br>(Command must be sent inside a text channel named "moveeradmin")
-<br>Example command: `!cmove channel#1 @user1 @user2`.
+### **!cmove:**
 
-### **!move:** ↓
+Moves users spread across multiple voice channels to one without the need of joining a voice channel
 
-Moves @mentions of users inside the Moveer voice channel to you. User1 is required to be inside the “Moveer” voice channel.
-<br>Example command `!move @user1 @user2`
+Example command: `!cmove channel#1 @user1 @user2`.
 
+### **!move:**
 
-### **!gmove:** ↓
-Moves users inside  GmoveerX to you with one command. If the voice channel is named gmoveerPubg use the example command
-<br>Example command `!gmove pubg`
- 
+Moves @mentions of users inside the Moveer voice channel to you.
 
-### **!fmove:** ↓ 
-Moves users inside one voicechannel to another. Moves users inside overwatch to pubg. <br>(Command must be sent inside a text channel named "moveeradmin")
-<br>Example command `!fmove overwatch pubg`
+Example command `!move @user1 @user2`
 
-### **!rmove:** ↓ 
+### **!fmove:**
+
+Moves users inside one voicechannel to another. Moves users inside overwatch to pubg.
+
+Example command `!fmove overwatch pubg`
+
+### **!rmove:**
+
 Moves users with a certain role to you. For example `!rmove dps` moves all members with "dps" role to you.
-<br>Example command `!rmove "super admins"`
 
-### **!tmove:** ↓ 
+Example command `!rmove "super admins"`
+
+### **!tmove:**
+
 Moves users with a certain role to specific channel. For example `!tmove channel1 dps` moves all members with "dps" role to channel1.
-<br>Example command `!tmove channel1 "super admins"`
 
-### **!ymove:** ↓ 
-Spreads user across voice channels.  For example `!ymove "before games" "games" 5` moves all user from "before games" and spread them, randomlywith 5 users in each voice, across channels in the category "games"
-<br>Example command `!ymove "before games" "games" 5`
+Example command `!tmove channel1 "super admins"`
 
-### **!av:** ↓ 
-Moves the author to a voice channel named `AV 5` if the author sends the message `!av 5`. Created for Vanilla BGs
-<br>Example command `!av 5`
+## Important notes
 
-# Important notes:
 1. If your names contains spaces use " around it. example: `!fmove "channel 1" "channel 2"`
-2. `!fmove`, `!cmove` and `!rmove` are all admin commands and requires the command to be sent inside a text channel named "moveeradmin" (or add a secondary channel, see note 5)
-3. `!gmove` and `!move` commands sent inside "moveeradmin" moves people from any channel and removes the requirement to be inside "Moveer" or "Gmoveer". Please note that the !gmove will require the full name of the voicechannel.
-4. If you want to block users from getting moved from a specific channel, example your AFK channel while using `!tmove` or `!rmove`. Contact the moderators in the discord below!
-5. If you want to add a secondary moveeradmin channel (with your own name) use the command `!changema` by writing `!changema #<ChannelName>`. Be sure the #tag the textchannel. You can now have 1 channel of your choice that allows admin commands!
-6. Want to move more then 10 users instantly? Instead of waiting for discord to move the rest? Contact a moderator inside the support discord!
+2. All commands must be sent inside a channel as specified in the config (default goatymaster)
 
-For more information use the !help command inside discord or join us with the link below ↓
-
-### Want to try it out? Got any questions or features thats missing? Join the official Moveer discord!
-Join us with the following link https://discord.gg/dTdH3gD and tag a moderator!
-
-### Invite Moveer to your discord using the link below! Happy Moving! :)
-Invite the bot to your server using this [LINK](https://discordapp.com/api/oauth2/authorize?client_id=400724460203802624&permissions=17825792&scope=bot)
+For more information use the !help command inside discord.
 
 The bot ONLY requires "Use members" and "CONNECT" when inviting. The reason for it requiring Connect permissions is because discord requires it. Moveer won't join you!
-
-## Show your support
-
-Give a ⭐️ if you like Moveer
-
