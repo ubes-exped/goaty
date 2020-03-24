@@ -32,7 +32,7 @@ export default {
       if (userIdsToMove.length > 0) {
         Helper.moveUsers(message, userIdsToMove, toVoiceChannel.id, rabbitMqChannel);
       } else {
-        Message.sendMessage(message, 'Everyone ' + Message.USER_ALREADY_IN_CHANNEL);
+        Message.sendMessage(message, 'Everyone ' + errors.USER_ALREADY_IN_CHANNEL);
       }
     } catch (err) {
       console.log('throwing');

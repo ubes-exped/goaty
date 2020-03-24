@@ -1,5 +1,6 @@
 import config from './config.js';
 import * as Message from './Message.js';
+import * as errors from './errors.js';
 
 export function checkIfVoiceChannelExist(message, voiceChannel, channelName) {
   const args = message.content.slice(config.discordPrefix.length).trim().split(/ +/g);
@@ -13,7 +14,7 @@ export function checkIfVoiceChannelExist(message, voiceChannel, channelName) {
           ? ' - Sent fnutt helper'
           : ''),
       sendMessage:
-        `${Message.NO_VOICE_CHANNEL_NAMED_X}the name/id: "${channelName}" <@${message.author.id}>` +
+        `${errors.NO_VOICE_CHANNEL_NAMED_X}the name/id: "${channelName}" <@${message.author.id}>` +
         (command !== 'move' &&
         message.content.slice(config.discordPrefix.length).trim().split(/ +/g).length > 3
           ? '\nIf your voicechannel contains spaces, please use "" around it. Example `"channel with spaces"`'
@@ -35,7 +36,7 @@ export function checkIfArgsTheSame(message, args) {
   if (args[0].toLowerCase() === args[1].toLowerCase()) {
     throw {
       logMessage: 'Same voicechannel name',
-      sendMessage: `${Message.VOICE_CHANNEL_NAMES_THE_SAME} <@${message.author.id}>`,
+      sendMessage: `${errors.VOICE_CHANNEL_NAMES_THE_SAME} <@${message.author.id}>`,
     };
   }
 }
@@ -45,7 +46,7 @@ export function checkIfUsersInsideVoiceChannel(message, fromVoiceChannelName, fr
   if (fromVoiceChannel.members.size < 1) {
     throw {
       logMessage: `No users inside the channel: ${fromVoiceChannelName}`,
-      sendMessage: `${Message.NO_USERS_INSIDE_ROOM}:  ${fromVoiceChannelName} <@${message.author.id}>`,
+      sendMessage: `${errors.NO_USERS_INSIDE_ROOM}:  ${fromVoiceChannelName} <@${message.author.id}>`,
     };
   }
 }
@@ -54,7 +55,7 @@ export function checkIfTextChannelIsMaster(message) {
   if (message.channel.name.toLowerCase() !== config.masterChannel) {
     throw {
       logMessage: 'Command made outside master channel',
-      sendMessage: `${Message.CMOVE_OUTSIDE_MASTER} <@${message.author.id}>`,
+      sendMessage: `${errors.CMOVE_OUTSIDE_MASTER} <@${message.author.id}>`,
     };
   }
 }
@@ -63,7 +64,7 @@ export function checkForUserMentions(message, messageMentions) {
   if (messageMentions.length < 1) {
     throw {
       logMessage: '@Mention is missing',
-      sendMessage: `${Message.MESSAGE_MISSING_MENTION} <@${message.author.id}>`,
+      sendMessage: `${errors.MESSAGE_MISSING_MENTION} <@${message.author.id}>`,
     };
   }
 }
@@ -72,7 +73,7 @@ export function checkIfMessageContainsMentions(message) {
   if (message.mentions.users.size > 0) {
     throw {
       logMessage: 'User tried to mention while moving groups',
-      sendMessage: `${Message.MOVE_MESSAGE_CONTAINS_MENTIONS} <@${message.author.id}>`,
+      sendMessage: `${errors.MOVE_MESSAGE_CONTAINS_MENTIONS} <@${message.author.id}>`,
     };
   }
 }
@@ -81,7 +82,7 @@ export function checkIfSelfMention(message) {
   if (message.mentions.users.has(message.author.id)) {
     throw {
       logMessage: 'User trying to move himself',
-      sendMessage: `${Message.USER_MOVING_SELF} <@${message.author.id}>`,
+      sendMessage: `${errors.USER_MOVING_SELF} <@${message.author.id}>`,
     };
   }
 }
@@ -91,7 +92,7 @@ export function checkIfAuthorInsideAVoiceChannel(message, userVoiceRoomID) {
     // Check for null or undefined
     throw {
       logMessage: 'User tried to move people without being inside a voice room',
-      sendMessage: `${Message.USER_NOT_IN_ANY_VOICE_CHANNEL} <@${message.author.id}>`,
+      sendMessage: `${errors.USER_NOT_IN_ANY_VOICE_CHANNEL} <@${message.author.id}>`,
     };
   }
 }
@@ -103,7 +104,7 @@ export function checkIfMentionsInsideVoiceChannel(message, messageMentions) {
       Message.logger(message, 'Not moving user, not in any voice channel!');
       Message.sendMessage(
         message,
-        `${messageMentions[i]} ${Message.USER_MENTION_NOT_IN_ANY_CHANNEL}`,
+        `${messageMentions[i]} ${errors.USER_MENTION_NOT_IN_ANY_CHANNEL}`,
       );
     }
   }
@@ -118,7 +119,7 @@ export function checkIfUsersAlreadyInChannel(message, messageMentions, toVoiceCh
       Message.logger(message, 'Not moving user, user already in the channel!');
       Message.sendMessage(
         message,
-        `${messageMentions[i].username} ${Message.USER_ALREADY_IN_CHANNEL}`,
+        `${messageMentions[i].username} ${errors.USER_ALREADY_IN_CHANNEL}`,
       );
     }
   }
@@ -134,14 +135,14 @@ export async function checkForConnectPerms(message, users, voiceChannel) {
     if (!userVoiceChannel.memberPermissions(message.guild.me).has('CONNECT')) {
       throw {
         logMessage: 'Moveer is missing CONNECT permission',
-        sendMessage: `${Message.MOVEER_MISSING_CONNECT_PERMISSION} "${userVoiceChannel.name}" <@${message.author.id}> \n \n${Message.SUPPORT_MESSAGE}`,
+        sendMessage: `${errors.MISSING_CONNECT_PERMISSION} "${userVoiceChannel.name}" <@${message.author.id}>`,
       };
     }
   }
   if (!voiceChannel.memberPermissions(message.guild.me).has('CONNECT')) {
     throw {
       logMessage: 'Moveer is missing CONNECT permission',
-      sendMessage: `${Message.MOVEER_MISSING_CONNECT_PERMISSION} "${voiceChannel.name}" <@${message.author.id}> \n \n${Message.SUPPORT_MESSAGE}`,
+      sendMessage: `${errors.MISSING_CONNECT_PERMISSION} "${voiceChannel.name}" <@${message.author.id}>`,
     };
   }
 }
@@ -153,14 +154,14 @@ export async function checkForMovePerms(message, users, voiceChannel) {
     if (!userVoiceChannel.memberPermissions(message.guild.me).has('MOVE_MEMBERS')) {
       throw {
         logMessage: 'Moveer is missing Move Members permission',
-        sendMessage: `${Message.MOVEER_MISSING_MOVE_PERMISSION} "${userVoiceChannel.name}" <@${message.author.id}> \n \n${Message.SUPPORT_MESSAGE}`,
+        sendMessage: `${errors.MISSING_MOVE_PERMISSION} "${userVoiceChannel.name}" <@${message.author.id}>`,
       };
     }
   }
   if (!voiceChannel.memberPermissions(message.guild.me).has('MOVE_MEMBERS')) {
     throw {
       logMessage: 'Moveer is missing Move Members permission',
-      sendMessage: `${Message.MOVEER_MISSING_MOVE_PERMISSION} "${voiceChannel.name}" <@${message.author.id}> \n \n${Message.SUPPORT_MESSAGE}`,
+      sendMessage: `${errors.MISSING_MOVE_PERMISSION} "${voiceChannel.name}" <@${message.author.id}>`,
     };
   }
 }
@@ -169,7 +170,7 @@ export function checkIfChannelIsTextChannel(message, channel) {
   if (channel.type === 'text') {
     throw {
       logMessage: 'User tried to move with textchannels',
-      sendMessage: `${channel.name}${Message.USER_MOVED_WITH_TEXT_CHANNEL} <@${message.author.id}> \n`,
+      sendMessage: `${channel.name}${errors.USER_MOVED_WITH_TEXT_CHANNEL} <@${message.author.id}> \n`,
     };
   }
 }
@@ -270,8 +271,8 @@ export function getNameWithSpacesName(args) {
     toVoiceChannelName = testTo;
   } else {
     throw {
-      logMessage: Message.MISSING_FNUTTS_IN_ARGS,
-      sendMessage: Message.MISSING_FNUTTS_IN_ARGS,
+      logMessage: errors.MISSING_FNUTTS_IN_ARGS,
+      sendMessage: errors.MISSING_FNUTTS_IN_ARGS,
     };
   }
   return [fromVoiceChannelName, toVoiceChannelName];
