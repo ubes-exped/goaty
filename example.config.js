@@ -5,4 +5,5 @@ export default {
   allowedGuilds: [], // <---- DON'T CHANGE THIS
   blockedVoiceChannels: [], // <---- DON'T CHANGE THIS
   rabbitMQConnection: 'amqp://localhost',
+  aliases: {},
 };
