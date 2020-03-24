@@ -1,40 +1,52 @@
-const moveerMessage = require('../moveerMessage.js');
-const helper = require('../helper.js');
+import * as Helper from '../Helper.js';
+import * as Message from '../Message.js';
+import config from '../config.js';
 
-async function move(args, message, rabbitMqChannel) {
-  try {
-    let fromVoiceChannelName = args[0];
-    let toVoiceChannelName = args[1];
-    if (args.join().includes('"')) {
-      const names = helper.getNameWithSpacesName(args);
-      fromVoiceChannelName = names[0];
-      toVoiceChannelName = names[1];
+export default {
+  name: 'fmove',
+  description: 'Moves one channel to another channel',
+  help: {
+    embed: {
+      color: 2387002,
+      fields: [
+        {
+          name: '!fmove',
+          value: `1. Tell users you want to move to join voice channel A\n2. Write \`!fmove A B\` where B is the voice channel you want to move them\n \nThis command requires to be sent from the text channel \'${config.masterChannel}\'.\n(If your voice channel contains spaces use\n\`!fmove "channel 1" "channel 2"\`)`,
+        },
+      ],
+    },
+  },
+  async move(args, message, rabbitMqChannel) {
+    try {
+      let fromVoiceChannelName = args[0];
+      let toVoiceChannelName = args[1];
+      if (args.join().includes('"')) {
+        const names = Helper.getNameWithSpacesName(args);
+        fromVoiceChannelName = names[0];
+        toVoiceChannelName = names[1];
+      }
+
+      await Helper.checkIfTextChannelIsMaster(message);
+      Helper.checkIfMessageContainsMentions(message);
+      Helper.checkArgsLength(args, 2);
+      Helper.checkIfArgsTheSame(message, args);
+      const fromVoiceChannel = Helper.getChannelByName(message, fromVoiceChannelName);
+      const toVoiceChannel = Helper.getChannelByName(message, toVoiceChannelName);
+      Helper.checkIfVoiceChannelExist(message, fromVoiceChannel, fromVoiceChannelName);
+      Helper.checkIfVoiceChannelExist(message, toVoiceChannel, toVoiceChannelName);
+      Helper.checkIfChannelIsTextChannel(message, toVoiceChannel);
+      Helper.checkIfChannelIsTextChannel(message, fromVoiceChannel);
+      Helper.checkIfUsersInsideVoiceChannel(message, fromVoiceChannelName, fromVoiceChannel);
+      const userIdsToMove = await fromVoiceChannel.members.map(({ id }) => id);
+      await Helper.checkForMovePerms(message, userIdsToMove, toVoiceChannel);
+      await Helper.checkForConnectPerms(message, userIdsToMove, toVoiceChannel);
+
+      // No errors in the message, lets get moving!
+      Helper.moveUsers(message, userIdsToMove, toVoiceChannel.id, rabbitMqChannel);
+    } catch (err) {
+      if (!err.logMessage) console.log(err);
+      Message.logger(message, err.logMessage);
+      Message.sendMessage(message, err.sendMessage);
     }
-
-    await helper.checkIfTextChannelIsMoveerAdmin(message);
-    helper.checkIfMessageContainsMentions(message);
-    helper.checkArgsLength(args, 2);
-    helper.checkIfArgsTheSame(message, args);
-    const fromVoiceChannel = helper.getChannelByName(message, fromVoiceChannelName);
-    const toVoiceChannel = helper.getChannelByName(message, toVoiceChannelName);
-    helper.checkIfVoiceChannelExist(message, fromVoiceChannel, fromVoiceChannelName);
-    helper.checkIfVoiceChannelExist(message, toVoiceChannel, toVoiceChannelName);
-    helper.checkIfChannelIsTextChannel(message, toVoiceChannel);
-    helper.checkIfChannelIsTextChannel(message, fromVoiceChannel);
-    helper.checkIfUsersInsideVoiceChannel(message, fromVoiceChannelName, fromVoiceChannel);
-    const userIdsToMove = await fromVoiceChannel.members.map(({ id }) => id);
-    await helper.checkForMovePerms(message, userIdsToMove, toVoiceChannel);
-    await helper.checkForConnectPerms(message, userIdsToMove, toVoiceChannel);
-
-    // No errors in the message, lets get moving!
-    helper.moveUsers(message, userIdsToMove, toVoiceChannel.id, rabbitMqChannel);
-  } catch (err) {
-    if (!err.logMessage) console.log(err);
-    moveerMessage.logger(message, err.logMessage);
-    moveerMessage.sendMessage(message, err.sendMessage);
-  }
-}
-
-module.exports = {
-  move,
+  },
 };

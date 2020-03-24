@@ -1,44 +1,56 @@
-const moveerMessage = require('../moveerMessage.js');
-const helper = require('../helper.js');
+import * as Helper from '../Helper.js';
+import * as Message from '../Message.js';
+import config from '../config.js';
 
-async function move(args, message, rabbitMqChannel) {
-  try {
-    let roleName = args[0];
-    if (args.join().includes('"')) {
-      const names = helper.getNameWithSpacesName(args); // Not channels, but role
-      roleName = names[0];
+export default {
+  name: 'rmove',
+  description: 'Moves everyone with a certain role to you',
+  help: {
+    embed: {
+      color: 2387002,
+      fields: [
+        {
+          name: '!rmove',
+          value: `1. Tell users you want to move, to join any voice channel\n2. Join any other voice channel and write \`!rmove damage\` where damage is the role name you want to move\n \nThis command requires to be sent from the text channel \'${config.masterChannel}\'.\nIf your role contains spaces use\n\`!rmove "super admins"\``,
+        },
+      ],
+    },
+  },
+  async move(args, message, rabbitMqChannel) {
+    try {
+      let roleName = args[0];
+      if (args.join().includes('"')) {
+        const names = Helper.getNameWithSpacesName(args); // Not channels, but role
+        roleName = names[0];
+      }
+      Helper.checkIfAuthorInsideAVoiceChannel(message, message.member.voiceChannelID);
+      await Helper.checkIfTextChannelIsMaster(message);
+      Helper.checkIfMessageContainsMentions(message);
+      Helper.checkArgsLength(args, 1);
+      let usersToMove = Helper.getUsersByRole(message, roleName);
+      usersToMove = Helper.checkIfUserInsideBlockedChannel(message, usersToMove);
+      usersToMove = Helper.checkIfMentionsInsideVoiceChannel(message, usersToMove);
+      usersToMove = Helper.checkIfUsersAlreadyInChannel(
+        message,
+        usersToMove,
+        message.member.voiceChannelID,
+      );
+      const userIdsToMove = await usersToMove.map(({ id }) => id);
+      const authorVoiceChannel = Helper.getChannelByName(message, message.member.voiceChannelID);
+      await Helper.checkForMovePerms(message, userIdsToMove, authorVoiceChannel);
+      await Helper.checkForConnectPerms(message, userIdsToMove, authorVoiceChannel);
+
+      // No errors in the message, lets get moving!
+      if (userIdsToMove.length > 0) {
+        Helper.moveUsers(message, userIdsToMove, message.member.voiceChannelID, rabbitMqChannel);
+      } else {
+        Message.logger(message, 'All users already in the correct voice channel');
+        Message.sendMessage(message, 'All users already in the correct voice channel');
+      }
+    } catch (err) {
+      if (!err.logMessage) console.log(err);
+      Message.logger(message, err.logMessage);
+      Message.sendMessage(message, err.sendMessage);
     }
-    helper.checkIfAuthorInsideAVoiceChannel(message, message.member.voiceChannelID);
-    await helper.checkIfTextChannelIsMoveerAdmin(message);
-    helper.checkIfMessageContainsMentions(message);
-    helper.checkArgsLength(args, 1);
-    let usersToMove = helper.getUsersByRole(message, roleName);
-    usersToMove = helper.checkIfUserInsideBlockedChannel(message, usersToMove);
-    usersToMove = helper.checkIfMentionsInsideVoiceChannel(message, usersToMove);
-    usersToMove = helper.checkIfUsersAlreadyInChannel(
-      message,
-      usersToMove,
-      message.member.voiceChannelID,
-    );
-    const userIdsToMove = await usersToMove.map(({ id }) => id);
-    const authorVoiceChannel = helper.getChannelByName(message, message.member.voiceChannelID);
-    await helper.checkForMovePerms(message, userIdsToMove, authorVoiceChannel);
-    await helper.checkForConnectPerms(message, userIdsToMove, authorVoiceChannel);
-
-    // No errors in the message, lets get moving!
-    if (userIdsToMove.length > 0) {
-      helper.moveUsers(message, userIdsToMove, message.member.voiceChannelID, rabbitMqChannel);
-    } else {
-      moveerMessage.logger(message, 'All users already in the correct voice channel');
-      moveerMessage.sendMessage(message, 'All users already in the correct voice channel');
-    }
-  } catch (err) {
-    if (!err.logMessage) console.log(err);
-    moveerMessage.logger(message, err.logMessage);
-    moveerMessage.sendMessage(message, err.sendMessage);
-  }
-}
-
-module.exports = {
-  move,
+  },
 };

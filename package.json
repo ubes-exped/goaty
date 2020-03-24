@@ -5,13 +5,12 @@
   "main": "main.js",
   "type": "module",
   "scripts": {
-    "start": "node main.js"
+    "start": "node main.js",
+    "serve": "./serve.sh"
   },
   "author": "Oscar Andersson",
   "devDependencies": {
     "eslint": "^6.8.0",
-    "eslint-config-airbnb": "^18.1.0",
-    "eslint-config-node": "^4.0.0",
     "eslint-config-prettier": "^6.10.1",
     "eslint-config-standard": "^14.1.0",
     "eslint-plugin-import": "^2.18.2",

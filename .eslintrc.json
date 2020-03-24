@@ -16,7 +16,7 @@
   "rules": {
     "prettier/prettier": "error",
     "no-console": 0,
-    "quotes": ["error", "single"],
+    "quotes": ["error", "single", { "avoidEscape": true }],
     "comma-dangle": ["error", "always-multiline"],
     "semi": ["error", "always"]
   }
