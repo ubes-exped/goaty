@@ -1,9 +1,13 @@
 import log from './log.js';
+import config from './config.js';
 
 export function embedHelpMessage(movers) {
   return {
     embed: {
-      fields: movers.map((mover) => ({ name: `!${mover.name}`, value: mover.description })),
+      fields: movers.map((mover) => ({
+        name: config.discordPrefix + mover.name,
+        value: mover.description,
+      })),
     },
   };
 }

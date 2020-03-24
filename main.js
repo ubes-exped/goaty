@@ -8,6 +8,7 @@ import rmove from './commands/rmove.js';
 import tmove from './commands/tmove.js';
 import config from './config.js';
 import log from './log.js';
+import * as Helper from './Helper.js';
 import * as Message from './Message.js';
 
 const client = new Discord.Client();
@@ -75,7 +76,7 @@ function moverEmbedHelp(mover) {
   return {
     embed: {
       color: 2387002,
-      fields: [{ name: `!${mover.name}`, value: mover.help }],
+      fields: [{ name: config.discordPrefix + mover.name, value: mover.help }],
     },
   };
 }
@@ -88,6 +89,7 @@ client.on('message', (message) => {
   if (!message.content.startsWith(config.discordPrefix)) return;
   if (message.author.bot && !config.allowedGuilds.includes(message.guild.id)) return;
   if (message.channel.type !== 'text') return;
+  if (!Helper.isTextChannelMaster(message)) return;
   let messageContent = message.content.slice(config.discordPrefix.length).trim();
   if (messageContent in config.aliases) messageContent = config.aliases[messageContent];
   const args = messageContent.split(/ +/g);

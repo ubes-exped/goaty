@@ -51,8 +51,12 @@ export function checkIfUsersInsideVoiceChannel(message, fromVoiceChannelName, fr
   }
 }
 
+export function isTextChannelMaster(message) {
+  return message.channel.name.toLowerCase() === config.masterChannel;
+}
+
 export function checkIfTextChannelIsMaster(message) {
-  if (message.channel.name.toLowerCase() !== config.masterChannel) {
+  if (!isTextChannelMaster(message)) {
     throw {
       logMessage: 'Command made outside master channel',
       sendMessage: `${errors.CMOVE_OUTSIDE_MASTER} <@${message.author.id}>`,
