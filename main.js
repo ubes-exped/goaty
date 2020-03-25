@@ -37,26 +37,6 @@ client.on('ready', async () => {
 client.on('guildCreate', (guild) => {
   createConsumer(guild.id, rabbitMqChannel);
   log.info(`Joined server: ${guild.name}`);
-  // Disabled until a good solution for randomly sending this out
-  const welcomeMessage =
-    'Hello and thanks for inviting me! If you need help or got any questions, please head over to the official Moveer discord at https://discord.gg/dTdH3gD\n';
-  const supportMessage = `I got multiple commands, but to get started with !cmove, please follow the guide below.\n 1. Create a text channel and name it "${config.masterChannel}".\n 2. Ask your friends to join a voice channel X\n 3. Inside the textchannel "${config.masterChannel}" write !cmove <voicechannelY> @yourfriendsname\n4. Thats it! @yourfriend should be moved from X to voice channel Y.\n \nWe got more commands! Write !help to see them all.\nLet's get Moving!`;
-  let defaultChannel = '';
-  guild.channels.forEach((channel) => {
-    if (channel.type === 'text' && defaultChannel === '') {
-      if (
-        channel.permissionsFor(guild.me).has('SEND_MESSAGES') &&
-        channel.permissionsFor(guild.me).has('READ_MESSAGES')
-      ) {
-        defaultChannel = channel;
-      }
-    }
-  });
-  if (defaultChannel === '') {
-    log.info('Failed to find defaultchannel, not sending welcome message.');
-    return;
-  }
-  defaultChannel.send(welcomeMessage + supportMessage);
 });
 
 client.on('guildDelete', (guild) => {
@@ -111,30 +91,31 @@ client.on('message', (message) => {
 
 client.login(token);
 
-function createConsumer(queue, rabbitMqChannel) {
+async function createConsumer(queue, rabbitMqChannel) {
   log.info(`Creating consumer for guild: ${queue}`);
-  rabbitMqChannel.assertQueue(queue, {
+  await rabbitMqChannel.assertQueue(queue, {
     durable: true,
   });
-  rabbitMqChannel.consume(
+  await rabbitMqChannel.consume(
     queue,
-    (msg) => {
+    async (msg) => {
       const jsonMsg = JSON.parse(msg.content.toString());
       log.info(
         `Moving ${jsonMsg.userId} to voiceChannel: ${jsonMsg.voiceChannelId} inside guild: ${jsonMsg.guildId}`,
       );
-      client.guilds
-        .get(jsonMsg.guildId)
-        .member(jsonMsg.userId)
-        .setVoiceChannel(jsonMsg.voiceChannelId)
-        .catch((err) => {
-          if (err.message !== 'Target user is not connected to voice.') {
-            log.error(err);
-            log.info('Got above error when moving people...');
-            Message.reportMoveerError('MOVE', err.message);
-          }
-          log.warn(`${jsonMsg.userName} left voice before getting moved`);
-        });
+      try {
+        await client.guilds
+          .get(jsonMsg.guildId)
+          .member(jsonMsg.userId)
+          .setVoiceChannel(jsonMsg.voiceChannelId);
+      } catch (e) {
+        if (e.message !== 'Target user is not connected to voice.') {
+          log.error(e);
+          log.info('Got above error when moving people...');
+          Message.reportMoveerError('MOVE', e.message);
+        }
+        log.warn(`${jsonMsg.userName} left voice before getting moved`);
+      }
     },
     { noAck: true },
   );
