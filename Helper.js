@@ -9,7 +9,7 @@ export function checkIfVoiceChannelExist(message, voiceChannel, channelName) {
   if (voiceChannel == null) {
     throw {
       logMessage:
-        "Can't find voiceChannel: ${channelName}" +
+        `Can't find voiceChannel: ${channelName}` +
         (message.content.slice(config.discordPrefix.length).trim().split(/ +/g).length > 3
           ? ' - Sent fnutt helper'
           : ''),
