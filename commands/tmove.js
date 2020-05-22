@@ -1,4 +1,5 @@
 import * as Helper from '../Helper.js';
+import * as errors from '../errors.js';
 import * as Message from '../Message.js';
 import config from '../config.js';
 
