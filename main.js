@@ -71,8 +71,8 @@ client.on('message', (message) => {
   if (message.channel.type !== 'text') return;
   if (!Helper.isTextChannelMaster(message)) return;
   let messageContent = message.content.slice(config.discordPrefix.length).trim();
-  const aliasRewrite = config.aliases.find((alias) => messageContent.startsWith(alias));
-  if (aliasRewrite) messageContent = aliasRewrite;
+  const aliasPrefix = Object.keys(config.aliases).find((alias) => messageContent.startsWith(alias));
+  if (aliasPrefix) messageContent = config.aliases[aliasPrefix];
   const args = messageContent.split(/ +/g);
   const command = args.shift().toLowerCase();
 
